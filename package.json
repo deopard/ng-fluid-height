@@ -1,0 +1,25 @@
+{
+  "name": "ng-fluid-height",
+  "version": "1.0.0",
+  "description": "AngularJS directives to implement responsive-fluid height layouts in all browsers.",
+  "main": "src/ng-fluid-height.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/deopard/ng-fluid-height.git"
+  },
+  "author": "Tom Kim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/deopard/ng-fluid-height/issues"
+  },
+  "homepage": "https://github.com/deopard/ng-fluid-height#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-uglify": "^0.11.0",
+    "grunt-contrib-watch": "^0.6.1"
+  }
+}

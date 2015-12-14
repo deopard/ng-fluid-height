@@ -1,0 +1,23 @@
+{
+  "name": "ng-fluid-height",
+  "homepage": "https://github.com/deopard/ng-fluid-height",
+  "authors": [
+    "Tom Kim <ekagud@gmail.com>"
+  ],
+  "description": "AngularJS directives to implement responsive-fluid height layouts in all browsers.",
+  "main": "fluid-height-fluid.js",
+  "moduleType": [],
+  "keywords": [
+    "fluid",
+    "height",
+    "AngularJS"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
