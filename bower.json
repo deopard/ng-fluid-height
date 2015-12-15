@@ -5,7 +5,7 @@
     "Tom Kim <ekagud@gmail.com>"
   ],
   "description": "AngularJS directives to implement responsive-fluid height layouts in all browsers.",
-  "main": "fluid-height-fluid.js",
+  "main": "dist/ng-fluid-height.js",
   "moduleType": [],
   "keywords": [
     "fluid",
@@ -19,5 +19,8 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "angular": ">=1.1.0"
+  }
 }

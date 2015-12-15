@@ -1,26 +1,39 @@
+(function () {
+  angular
+    .module('deopard.ngFluidHeight', []);
+})();
+
 /**
   * @ngdoc directive
-  * @name remember:fluidHeightFluid
+  * @name deopard.ngFluidHeight:fluidHeightFluid
   * @description
-  *
-  *
+  * AngularJS directive to register fluid height element to calculation group in FluidHeightManager
   */
 (function () {
   angular
-      .module('remember')
-      .directive('fluidHeightFluid', fluidHeightFluid);
+    .module('deopard.ngFluidHeight')
+    .directive('fluidHeightFluid', FluidHeightFluid);
 
-  fluidHeightFluid.$inject = [
-    '$window', '$timeout',
+  FluidHeightFluid.$inject = [
+    '$window',
     'FluidHeightManager'
   ];
 
-  function fluidHeightFluid (
-    $window, $timeout,
+  function FluidHeightFluid (
+    $window,
     FluidHeightManager
   ) {
     var directive = {
       restrict: 'A',
+      scope: {
+        /**
+         * @ngdoc property
+         * @name fluidHeightStatic
+         * @description
+         * Group name of fluid height calculation.
+         */
+        fluidHeightFluid: '='
+      },
       link: linkFunc
     };
 
@@ -29,37 +42,22 @@
     function linkFunc (scope, el, attr, ctrl) {
       var w = angular.element($window);
 
-      scope.getWindowDimensions = function () {
-        return { 'h': w.height(), 'w': w.width() };
-      };
+      w.bind('resize', function () { scope.$apply(); });
 
-      w.bind('resize', function () {
-        scope.$apply();
-      });
+      scope.$watch(getWindowDimensions, resize, true);
 
-      scope.$watch(scope.getWindowDimensions, function (newValue, oldValue) {
-        // IE9과 같은 브라우저를 위하여 시간차를 두고 두번 resizing..
-        resize();
-        $timeout(resize, 100);
+      scope.$on('fluid-height-changed', resize);
 
-        function resize () {
-          var height = FluidHeightManager.getFluidHeight(attr.fluidHeightFluid);
-          el.css('max-height', height + 'px');
-        }
-      }, true);
+      FluidHeightManager.registerFluid(scope.fluidHeightFluid, scope);
 
-      scope.$on('fluid-height-changed', function () {
-        // IE9과 같은 브라우저를 위하여 시간차를 두고 두번 resizing..
-        resize();
-        $timeout(resize, 100);
+      function getWindowDimensions () {
+        return { 'h': w[0].outerHeight, 'w': w[0].outerHeight };
+      }
 
-        function resize () {
-          var height = FluidHeightManager.getFluidHeight(attr.fluidHeightFluid);
-          el.css('max-height', height + 'px');
-        }
-      });
-
-      FluidHeightManager.registerFluid(attr.fluidHeightFluid, scope);
+      function resize () {
+        var height = FluidHeightManager.getFluidHeight(scope.fluidHeightFluid);
+        el.css('max-height', height + 'px');
+      }
     }
   }
 })();

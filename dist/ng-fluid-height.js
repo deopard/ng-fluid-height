@@ -4,29 +4,36 @@
  * Copyright (c) 2015 Tom Kim
  * License: MIT
  */
+(function () {
+  angular
+    .module('deopard.ngFluidHeight', []);
+})();
+
 /**
   * @ngdoc directive
-  * @name remember:fluidHeightFluid
+  * @name deopard.ngFluidHeight:fluidHeightFluid
   * @description
-  *
-  *
+  * AngularJS directive to register fluid height element to calculation group in FluidHeightManager
   */
 (function () {
   angular
-      .module('remember')
-      .directive('fluidHeightFluid', fluidHeightFluid);
+    .module('deopard.ngFluidHeight')
+    .directive('fluidHeightFluid', FluidHeightFluid);
 
-  fluidHeightFluid.$inject = [
-    '$window', '$timeout',
+  FluidHeightFluid.$inject = [
+    '$window',
     'FluidHeightManager'
   ];
 
-  function fluidHeightFluid (
-    $window, $timeout,
+  function FluidHeightFluid (
+    $window,
     FluidHeightManager
   ) {
     var directive = {
       restrict: 'A',
+      scope: {
+        fluidHeightFluid: '='
+      },
       link: linkFunc
     };
 
@@ -35,202 +42,225 @@
     function linkFunc (scope, el, attr, ctrl) {
       var w = angular.element($window);
 
-      scope.getWindowDimensions = function () {
-        return { 'h': w.height(), 'w': w.width() };
-      };
+      w.bind('resize', function () { scope.$apply(); });
 
-      w.bind('resize', function () {
-        scope.$apply();
-      });
+      scope.$watch(getWindowDimensions, resize, true);
 
-      scope.$watch(scope.getWindowDimensions, function (newValue, oldValue) {
-        // IE9과 같은 브라우저를 위하여 시간차를 두고 두번 resizing..
-        resize();
-        $timeout(resize, 100);
+      scope.$on('fluid-height-changed', resize);
 
-        function resize () {
-          var height = FluidHeightManager.getFluidHeight(attr.fluidHeightFluid);
-          el.css('max-height', height + 'px');
-        }
-      }, true);
+      FluidHeightManager.registerFluid(scope.fluidHeightFluid, scope);
 
-      scope.$on('fluid-height-changed', function () {
-        // IE9과 같은 브라우저를 위하여 시간차를 두고 두번 resizing..
-        resize();
-        $timeout(resize, 100);
+      function getWindowDimensions () {
+        return { 'h': w[0].outerHeight, 'w': w[0].outerHeight };
+      }
 
-        function resize () {
-          var height = FluidHeightManager.getFluidHeight(attr.fluidHeightFluid);
-          el.css('max-height', height + 'px');
-        }
-      });
-
-      FluidHeightManager.registerFluid(attr.fluidHeightFluid, scope);
+      function resize () {
+        var height = FluidHeightManager.getFluidHeight(scope.fluidHeightFluid);
+        el.css('max-height', height + 'px');
+      }
     }
   }
 })();
 
 /**
   * @ngdoc directive
-  * @name remember:fluidHeightStatic
+  * @name deopard.ngFluidHeight:fluidHeightStatic
   * @description
-  *
   *
   */
 (function () {
-	angular
-	    .module('remember')
-	    .directive('fluidHeightStatic', fluidHeightStatic);
+  angular
+    .module('deopard.ngFluidHeight')
+    .directive('fluidHeightStatic', FluidHeightStatic);
 
-	fluidHeightStatic.$inject = ['$window', '$timeout', 'FluidHeightManager'];
+  FluidHeightStatic.$inject = ['FluidHeightManager'];
 
-	function fluidHeightStatic ($window, $timeout, FluidHeightManager) {
-	    var directive = {
-	        restrict: 'A',
-			scope: {
-				fluidHeightStaticShown: '='
-			},
-		    link: linkFunc
-	    };
+  function FluidHeightStatic (FluidHeightManager) {
+    var directive = {
+      restrict: 'A',
+      scope: {
+        /**
+         * @ngdoc property
+         * @name fluidHeightStatic
+         * @description
+         * Fluid height calculate group name.
+         */
+        fluidHeightStatic: '=',
 
-	    return directive;
+        /**
+         * @ngdoc property
+         * @name fluidHeightStatic
+         * @description
+         * Unique key of the static height element in calculation group.
+         */
+        fluidHeightStaticKey: '=',
 
-	    function linkFunc (scope, el, attr, ctrl) {
-			var key = attr.fluidHeightStatic;
-			var id = attr.fluidHeightStaticKey;
-			var height = parseInt(attr.fluidHeightStaticHeight);
+        /**
+         * @ngdoc property
+         * @name fluidHeightStatic
+         * @description
+         * Element's static height.
+         */
+        fluidHeightStaticHeight: '=?',
 
-			// 만약 높이가 지정되어있지 않거나 올바르지 않을 경우 자동으로 높이를 조절하여 사용한다.
-			if (!height || height.toString() != attr.fluidHeightStaticHeight) {
-				height = el.outerHeight();
+        /**
+         * @ngdoc property
+         * @name fluidHeightStatic
+         * @description
+         * Expression whether this element is shown.
+         */
+        fluidHeightStaticShown: '='
+      },
+      link: linkFunc
+    };
 
-				// 로딩중에 따라 높이가 변경될 경우에 따른 처리도 한다.
-				scope.$watch(
-					function () { return el.outerHeight(); },
-					function (newHeight) {
-						FluidHeightManager.changed(
-							key, id,
-							!!scope.fluidHeightStaticShown ? newHeight : 0
-						);
-					}
-				);
-			}
+    return directive;
 
-			FluidHeightManager.registerStatic(
-				key, id,
-				!!scope.fluidHeightStaticShown ? height : 0
-			);
+    function linkFunc (scope, el, attr, ctrl) {
+      var key = scope.fluidHeightStatic;
+      var id = scope.fluidHeightStaticKey;
+      var height = scope.fluidHeightStaticHeight;
 
-			//visibility changed
-			scope.$watch(
-				function () { return !!scope.fluidHeightStaticShown; },
-				function (shown) {
-					FluidHeightManager.changed(
-						key, id,
-						shown ? height : 0
-					);
-				}
-			);
-	    }
-	}
+      // When height is not explicitly declared,
+      // automatically calculate the element's height and use it
+      if (!height) {
+        height = el[0].offsetHeight;
+
+        // Register scope.$watch to watch element's height change.
+        scope.$watch(
+          function () { return el[0].offsetHeight; },
+          function (newHeight) {
+            FluidHeightManager.changed(
+              key, id,
+              scope.fluidHeightStaticShown !== false ? 0 : newHeight
+            );
+          }
+        );
+      }
+
+      // Register static height element to FluidHeightManager
+      FluidHeightManager.registerStatic(
+        key, id,
+        scope.fluidHeightStaticShown !== false ? 0 : height
+      );
+
+      //visibility changed
+      scope.$watch(
+        function () { return scope.fluidHeightStaticShown !== false; },
+        function (shown) {
+          FluidHeightManager.changed(
+            key, id,
+            shown ? height : 0
+          );
+        }
+      );
+    }
+  }
 })();
 
 /**
- * @ngdoc service
- * @name remember:FluidHeightManager
- * @description
- * Popover등을 보여
- */
+  * @ngdoc service
+  * @name deopard.ngFluidHeight:FluidHeightManager
+  * @description
+  * Help register and unregistering height calc elements
+  */
 (function () {
-	angular
-		.module('remember')
-		.service('FluidHeightManager', FluidHeightManager)
+  angular
+    .module('deopard.ngFluidHeight')
+    .service('FluidHeightManager', FluidHeightManager);
 
-	FluidHeightManager.$inject = ['$window'];
+  FluidHeightManager.$inject = ['$window'];
 
-	function FluidHeightManager ($window) {
-		var w = angular.element($window);
+  function FluidHeightManager ($window) {
+    // current window element
+    // var w = angular.element($window);
+    var w = angular.element($window);
 
-		/**
-		  * @ngdoc property
-		  * @name height
-		  * @propertyOf remember:FluidHeightManager
-		  * @description
-		  *
-		  */
-		var heights = {};
+    // Dictionary of heights of registered height elements
+    var heights = {};
 
-		var scopes = {};
+    // Dictionary of scopes of registered height elements
+    var scopes = {};
 
-		this.registerFluid = registerFluid;
+    /**
+      * @ngdoc method
+      * @name registerFluid
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups
+      * @param {scope} scope Scope of the fluid height element
+      * @description
+      * Register fluid height sized element to calcuation group.
+      */
+    this.registerFluid = registerFluid;
 
-		/**
-		  * @ngdoc method
-		  * @name register
-		  * @methodOf remember:FluidHeightManager
-		  * @param {string} key Fluid layout을 구분지을 key.
-		  * @param {string} drtvId directive의 고유 id
-		  * @param {number} height register일때의 height
-		  * @description
-		  * Fluid layout에 static height로 drtv를 등록한다.
-		  */
-		this.registerStatic = registerStatic;
+    /**
+      * @ngdoc method
+      * @name registerStatic
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups. "common" is a special key and will be calculated in all groups.
+      * @param {string} name Element's unique name in group
+      * @param {number} height Static height of the element
+      * @description
+      * Register static height sized element to calculation group.
+      */
+    this.registerStatic = registerStatic;
 
-		/**
-		  * @ngdoc method
-		  * @name register
-		  * @methodOf remember:FluidHeightManager
-		  * @param {string} key Fluid layout을 구분지을 key
-		  * @description
-		  * FluidHeightManager에게 현재 Fluid layout key에서 fluid 부분의 높이를 계산해달라 요청한다.
-		  */
-		this.getFluidHeight = getFluidHeight;
+    /**
+      * @ngdoc method
+      * @name getFluidHeight
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups
+      * @description
+      * Calculates the fluid height in calculation group and returns it.
+      * The calculation formula: Window's current height - sum of static heights in this calculation group
+      */
+    this.getFluidHeight = getFluidHeight;
 
-		/**
-		  * @ngdoc method
-		  * @name register
-		  * @methodOf remember:FluidHeightManager
-		  * @param {string} key Fluid layout을 구분지을 key.
-		  * @param {string} drtvId directive의 고유 id
-		  * @param {number} height 변경된 높이의
-		  * @description
-		  * FluidHeightManager에게 등록되어있는 static element의 크기가 변경되었음을 알려준다.
-		  */
-		this.changed = changed;
+    /**
+      * @ngdoc method
+      * @name changed
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups
+      * @param {string} name Element's unique name in group
+      * @param {number} height Static height of the element
+      * @description
+      * Change the size of static height element in specified calculation group.
+      */
+    this.changed = changed;
 
-		function registerFluid (key, scope) {
-			scopes[key] = scope;
-		}
+    function registerFluid (key, scope) {
+      scopes[key] = scope;
+    }
 
-		function registerStatic (key, drtvId, height) {
-			if (_.isUndefined(heights[key])) {
-				heights[key] = {};
-			}
+    function registerStatic (key, name, height) {
+      if (angular.isUndefined(heights[key])) {
+        heights[key] = {};
+      }
 
-			heights[key][drtvId] = height;
-		}
+      heights[key][name] = height;
+    }
 
-		function changed (key, drtvId, height) {
-			heights[key][drtvId] = height;
+    function getFluidHeight (key) {
+      // window height - [static heights]
+      var sh = 0;
+      angular.forEach(heights[key], function (h) {
+        sh += h;
+      });
 
-			if (!_.isUndefined(scopes[key])) {
-				scopes[key].$emit('fluid-height-changed');
-			}
-		}
+      // calculate common heights
+      angular.forEach(heights.common, function (h) {
+        sh += h;
+      });
 
-		function getFluidHeight (key) {
-			//window height - [static heights]
-			var sh = 0;
-			_.each(heights[key], function (h) {
-				sh += h;
-			});
+      return w[0].outerHeight - sh;
+    }
 
-			//common에 대한 높이도 계산
-			_.each(heights.common, function (h) {
-				sh += h;
-			});
+    function changed (key, name, height) {
+      heights[key][name] = height;
 
-			return $(window).height() - sh - 10;
-		}
-	}
+      if (!angular.isUndefined(scopes[key])) {
+        scopes[key].$emit('fluid-height-changed');
+      }
+    }
+  }
 })();

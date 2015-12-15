@@ -1,99 +1,106 @@
 /**
- * @ngdoc service
- * @name remember:FluidHeightManager
- * @description
- * Popover등을 보여
- */
+  * @ngdoc service
+  * @name deopard.ngFluidHeight:FluidHeightManager
+  * @description
+  * Help register and unregistering height calc elements
+  */
 (function () {
-	angular
-		.module('remember')
-		.service('FluidHeightManager', FluidHeightManager)
+  angular
+    .module('deopard.ngFluidHeight')
+    .service('FluidHeightManager', FluidHeightManager);
 
-	FluidHeightManager.$inject = ['$window'];
+  FluidHeightManager.$inject = ['$window'];
 
-	function FluidHeightManager ($window) {
-		var w = angular.element($window);
+  function FluidHeightManager ($window) {
+    // current window element
+    // var w = angular.element($window);
+    var w = angular.element($window);
 
-		/**
-		  * @ngdoc property
-		  * @name height
-		  * @propertyOf remember:FluidHeightManager
-		  * @description
-		  *
-		  */
-		var heights = {};
+    // Dictionary of heights of registered height elements
+    var heights = {};
 
-		var scopes = {};
+    // Dictionary of scopes of registered height elements
+    var scopes = {};
 
-		this.registerFluid = registerFluid;
+    /**
+      * @ngdoc method
+      * @name registerFluid
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups
+      * @param {scope} scope Scope of the fluid height element
+      * @description
+      * Register fluid height sized element to calcuation group.
+      */
+    this.registerFluid = registerFluid;
 
-		/**
-		  * @ngdoc method
-		  * @name register
-		  * @methodOf remember:FluidHeightManager
-		  * @param {string} key Fluid layout을 구분지을 key.
-		  * @param {string} drtvId directive의 고유 id
-		  * @param {number} height register일때의 height
-		  * @description
-		  * Fluid layout에 static height로 drtv를 등록한다.
-		  */
-		this.registerStatic = registerStatic;
+    /**
+      * @ngdoc method
+      * @name registerStatic
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups. "common" is a special key and will be calculated in all groups.
+      * @param {string} name Element's unique name in group
+      * @param {number} height Static height of the element
+      * @description
+      * Register static height sized element to calculation group.
+      */
+    this.registerStatic = registerStatic;
 
-		/**
-		  * @ngdoc method
-		  * @name register
-		  * @methodOf remember:FluidHeightManager
-		  * @param {string} key Fluid layout을 구분지을 key
-		  * @description
-		  * FluidHeightManager에게 현재 Fluid layout key에서 fluid 부분의 높이를 계산해달라 요청한다.
-		  */
-		this.getFluidHeight = getFluidHeight;
+    /**
+      * @ngdoc method
+      * @name getFluidHeight
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups
+      * @description
+      * Calculates the fluid height in calculation group and returns it.
+      * The calculation formula: Window's current height - sum of static heights in this calculation group
+      */
+    this.getFluidHeight = getFluidHeight;
 
-		/**
-		  * @ngdoc method
-		  * @name register
-		  * @methodOf remember:FluidHeightManager
-		  * @param {string} key Fluid layout을 구분지을 key.
-		  * @param {string} drtvId directive의 고유 id
-		  * @param {number} height 변경된 높이의
-		  * @description
-		  * FluidHeightManager에게 등록되어있는 static element의 크기가 변경되었음을 알려준다.
-		  */
-		this.changed = changed;
+    /**
+      * @ngdoc method
+      * @name changed
+      * @methodOf deopard.ngFluidHeight:FluidHeightManager
+      * @param {string} key Calculation group's key. Should be unique among groups
+      * @param {string} name Element's unique name in group
+      * @param {number} height Static height of the element
+      * @description
+      * Change the size of static height element in specified calculation group.
+      */
+    this.changed = changed;
 
-		function registerFluid (key, scope) {
-			scopes[key] = scope;
-		}
+    function registerFluid (key, scope) {
+      scopes[key] = scope;
+    }
 
-		function registerStatic (key, drtvId, height) {
-			if (_.isUndefined(heights[key])) {
-				heights[key] = {};
-			}
+    function registerStatic (key, name, height) {
+      if (angular.isUndefined(heights[key])) {
+        heights[key] = {};
+      }
 
-			heights[key][drtvId] = height;
-		}
+      heights[key][name] = height;
+    }
 
-		function changed (key, drtvId, height) {
-			heights[key][drtvId] = height;
+    function getFluidHeight (key) {
+      // window height - [static heights]
+      var sh = 0;
+      angular.forEach(heights[key], function (h) {
+        sh += h;
+      });
 
-			if (!_.isUndefined(scopes[key])) {
-				scopes[key].$emit('fluid-height-changed');
-			}
-		}
+      // calculate common heights
+      angular.forEach(heights.common, function (h) {
+        sh += h;
+      });
 
-		function getFluidHeight (key) {
-			//window height - [static heights]
-			var sh = 0;
-			_.each(heights[key], function (h) {
-				sh += h;
-			});
+      return w[0].outerHeight - sh;
+    }
 
-			//common에 대한 높이도 계산
-			_.each(heights.common, function (h) {
-				sh += h;
-			});
+    function changed (key, name, height) {
+      heights[key][name] = height;
 
-			return $(window).height() - sh - 10;
-		}
-	}
+      if (!angular.isUndefined(scopes[key])) {
+        scopes[key].$emit('fluid-height-changed');
+      }
+    }
+  }
 })();

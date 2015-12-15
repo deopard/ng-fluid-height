@@ -2,7 +2,7 @@
   "name": "ng-fluid-height",
   "version": "1.0.0",
   "description": "AngularJS directives to implement responsive-fluid height layouts in all browsers.",
-  "main": "src/ng-fluid-height.js",
+  "main": "dist/ng-fluid-height.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

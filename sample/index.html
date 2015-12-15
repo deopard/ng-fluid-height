@@ -1,0 +1,94 @@
+<html>
+<head>
+  <style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\:form{display:block;}.ng-animate-start{clip:rect(0,auto,auto,0);-ms-zoom:1.0001;}.ng-animate-active{clip:rect(-1px,auto,auto,0);-ms-zoom:1;}</style>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex">
+  <title>ngFluidHeight Demo</title>
+
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.js"></script>
+  <script type="text/javascript" src="js.js"></script>
+  <script type="text/javascript" src="../dist/ng-fluid-height.js"></script>
+  <link rel="stylesheet" type="text/css" href="css.css" />
+
+</head>
+<body ng-app="app" ng-controller="Ctrl">
+  <!-- Commonly calculated element -->
+  <div class="nav"
+    fluid-height-static="'common'" fluid-height-static-key="'nav'"
+    fluid-height-static-shown="true" fluid-height-static-height="50">
+    Common Nav. (Resize the height of the window)
+  </div>
+
+  <div class="a">
+
+    <!-- Element of group 'a', registered with explicit height and is dynamically shown -->
+    <div class="a-static-1"
+      fluid-height-static="'a'" fluid-height-static-key="'a-static-1'"
+      fluid-height-static-shown="showToggle" fluid-height-static-height="60"
+      ng-show="showToggle">
+      a-static-1 with explicit height
+    </div>
+
+    <!-- fluid element of group 'a' -->
+    <div class="a-fluid"
+      fluid-height-fluid="'a'">
+      <div ng-repeat="item in list" class="item">
+        {{ item }}
+      </div>
+    </div>
+
+    <!-- static element of group 'a'. Height will be auto calculated since there's no explicit declaration -->
+    <div class="a-static-2"
+      fluid-height-static="'a'" fluid-height-static-key="'a-static-2'">
+      a-static-2
+    </div>
+
+    <!-- static element of group 'a'. Height will be auto calculated since there's no explicit declaration -->
+    <div class="a-static-3"
+      fluid-height-static="'a'" fluid-height-static-key="'a-static-3'">
+      a-static-3
+    </div>
+  </div>
+  <div class="b">
+    <!-- Group b has no static height elements. Fluid height element only. -->
+    <div class="b-fluid"
+      fluid-height-fluid="'b'">
+      <div ng-repeat="item in list" class="item">
+        {{ item }}
+      </div>
+    </div>
+  </div>
+
+  <div class="c">
+    <!-- static element of group 'c'. Height will be auto calculated since there's no explicit declaration -->
+    <div class="c-static-1"
+      fluid-height-static="'c'" fluid-height-static-key="'c-static-1'">
+      c-static-1
+    </div>
+
+    <!-- static element of group 'a'. Height will be auto calculated since there's no explicit declaration. It is dynamically shown -->
+    <div class="c-static-2"
+      fluid-height-static="'c'" fluid-height-static-key="'c-static-2'"
+      fluid-height-static-shown="showToggle"
+      ng-show="showToggle">
+      c-static-2
+    </div>
+
+    <!-- Element of group 'c', registered with explicit height and is dynamically shown -->
+    <div class="c-static-3"
+      fluid-height-static="'c'" fluid-height-static-key="'c-static-3'"
+      fluid-height-static-shown="showToggle" fluid-height-static-height="100"
+      ng-show="showToggle">
+      c-static-3
+    </div>
+
+    <!-- fluid element of group 'a' -->
+    <div class="c-fluid"
+      fluid-height-fluid="'c'">
+      <div ng-repeat="item in list" class="item">
+        {{ item }}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

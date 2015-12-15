@@ -1,0 +1,69 @@
+body {
+  margin: 0;
+}
+
+div {
+    text-align: center;
+}
+.item {
+    border: solid 1px black;
+    height: 100px;
+}
+.a,
+.b,
+.c {
+    width: 30%;
+    float: left;
+    margin: 5px;
+}
+.nav {
+    background-color: #FF9E80;
+    width: 100%;
+    height: 30px;
+    margin-bottom: 5px;
+}
+.a {
+    background-color: #FF6E40;
+}
+.a .a-static-1 {
+    height: 60px;
+    background-color: #FFFF00;
+}
+.a .a-fluid {
+    background-color: #FFFAC1;
+    overflow-y: auto;
+}
+.a .a-static-2 {
+    height: 40px;
+    background-color: #FFFF00;
+}
+.a .a-static-3 {
+    height: 100px;
+    background-color: #FFEA00;
+}
+.b {
+    background-color: #FF3D00;
+}
+.b .b-fluid {
+    background-color: #FFFAC1;
+    overflow-y: auto;
+}
+.c {
+    background-color: #DD2C00;
+}
+.c .c-static-1 {
+    height: 50px;
+    background-color: #FFFF00;
+}
+.c .c-static-2 {
+    height: 40px;
+    background-color: #FFEA00;
+}
+.c .c-static-3 {
+    height: 100px;
+    background-color: #FFFF00;
+}
+.c .c-fluid {
+    background-color: #FFFAC1;
+    overflow-y: auto;
+}
