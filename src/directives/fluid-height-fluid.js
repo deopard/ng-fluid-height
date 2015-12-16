@@ -51,7 +51,7 @@
       FluidHeightManager.registerFluid(scope.fluidHeightFluid, scope);
 
       function getWindowDimensions () {
-        return { 'h': w[0].outerHeight, 'w': w[0].outerHeight };
+        return { 'h': w[0].innerHeight, 'w': w[0].innerHeight };
       }
 
       function resize () {

@@ -32,6 +32,12 @@
     var directive = {
       restrict: 'A',
       scope: {
+        /**
+         * @ngdoc property
+         * @name fluidHeightStatic
+         * @description
+         * Group name of fluid height calculation.
+         */
         fluidHeightFluid: '='
       },
       link: linkFunc
@@ -51,7 +57,7 @@
       FluidHeightManager.registerFluid(scope.fluidHeightFluid, scope);
 
       function getWindowDimensions () {
-        return { 'h': w[0].outerHeight, 'w': w[0].outerHeight };
+        return { 'h': w[0].innerHeight, 'w': w[0].innerHeight };
       }
 
       function resize () {
@@ -83,7 +89,7 @@
          * @ngdoc property
          * @name fluidHeightStatic
          * @description
-         * Fluid height calculate group name.
+         * Group name of fluid height calculation.
          */
         fluidHeightStatic: '=',
 
@@ -109,7 +115,7 @@
          * @description
          * Expression whether this element is shown.
          */
-        fluidHeightStaticShown: '='
+        fluidHeightStaticShown: '=?'
       },
       link: linkFunc
     };
@@ -252,7 +258,7 @@
         sh += h;
       });
 
-      return w[0].outerHeight - sh;
+      return w[0].innerHeight - sh;
     }
 
     function changed (key, name, height) {

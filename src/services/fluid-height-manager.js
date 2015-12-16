@@ -92,7 +92,7 @@
         sh += h;
       });
 
-      return w[0].outerHeight - sh;
+      return w[0].innerHeight - sh;
     }
 
     function changed (key, name, height) {
