@@ -1,7 +1,7 @@
 /*! 
- * ng-fluid-height v1.0.0
+ * ng-fluid-height v1.0.1
  * https://github.com/deopard/ng-fluid-height#readme
- * Copyright (c) 2015 Tom Kim
+ * Copyright (c) 2016 Tom Kim
  * License: MIT
  */
 (function () {
@@ -138,7 +138,7 @@
           function (newHeight) {
             FluidHeightManager.changed(
               key, id,
-              scope.fluidHeightStaticShown !== false ? 0 : newHeight
+              scope.fluidHeightStaticShown === false ? 0 : newHeight
             );
           }
         );
@@ -147,7 +147,7 @@
       // Register static height element to FluidHeightManager
       FluidHeightManager.registerStatic(
         key, id,
-        scope.fluidHeightStaticShown !== false ? 0 : height
+        scope.fluidHeightStaticShown === false ? 0 : height
       );
 
       //visibility changed
