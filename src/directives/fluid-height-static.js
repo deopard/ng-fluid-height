@@ -68,7 +68,7 @@
           function (newHeight) {
             FluidHeightManager.changed(
               key, id,
-              scope.fluidHeightStaticShown !== false ? 0 : newHeight
+              scope.fluidHeightStaticShown === false ? 0 : newHeight
             );
           }
         );
@@ -77,7 +77,7 @@
       // Register static height element to FluidHeightManager
       FluidHeightManager.registerStatic(
         key, id,
-        scope.fluidHeightStaticShown !== false ? 0 : height
+        scope.fluidHeightStaticShown === false ? 0 : height
       );
 
       //visibility changed
