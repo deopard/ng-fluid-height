@@ -160,6 +160,16 @@
           );
         }
       );
+
+      //destroy
+      scope.$on('$destroy',
+        function () {
+          FluidHeightManager.changed(
+            key, id,
+            0
+          );
+        }
+      );
     }
   }
 })();
